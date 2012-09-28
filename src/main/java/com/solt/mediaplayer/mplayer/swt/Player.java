@@ -692,9 +692,8 @@ Player
 		return( playerFrame.getDurationInSecs());
 	}
 	
-	public static void main(String[] args) throws Exception {
+	public static void play(final Shell shell, String fileOrUrl) throws Exception {
 		File player_binary = new File("bin\\mplayer.exe");
-		String test_file	= "http://localhost:18080/7c028f99fa92cd17804e3e0f6773c0d24ed763cb";
 		
 		MPlayer.initialise( player_binary );
 		
@@ -707,8 +706,7 @@ Player
 //		new LocaleUtilitiesImpl(null).integrateLocalisedMessageBundle( bundle );
 		
 		System.out.println(SWT.getVersion());
-		final Display display = new Display();
-		final Shell shell = new Shell();
+		final Display display = shell.getDisplay();
 		shell.setLocation(200,200);
 		shell.setSize(500,250);
 		
@@ -738,7 +736,7 @@ Player
 		
 		//shell.setFullScreen(true);
 		
-		player.open( test_file, true );
+		player.open( fileOrUrl, true );
 		
 		shell.open();
 		
