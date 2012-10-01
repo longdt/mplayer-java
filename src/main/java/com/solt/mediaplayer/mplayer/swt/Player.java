@@ -708,11 +708,11 @@ Player
 		System.out.println(SWT.getVersion());
 		final Display display = shell.getDisplay();
 		shell.setLocation(200,200);
-		shell.setSize(500,250);
+		shell.setSize(720,480);
 		
 		shell.setText("Loading...");
 		shell.setLayout(new FillLayout());
-		
+		shell.forceFocus();
 		//shell.setBackground(display.getSystemColor(SWT.COLOR_BLACK));
 		
 		final Player player = new Player(shell);

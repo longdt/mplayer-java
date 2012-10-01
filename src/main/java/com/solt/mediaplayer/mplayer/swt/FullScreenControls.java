@@ -1092,12 +1092,6 @@ public class FullScreenControls {
 	
 	private float getTimeFromSliderX(int x) {
 		float time = player.getDurationInSecs() * (x - timeSliderRectangle.x) / (timeSliderRectangle.width);
-		
-		if ( seek_max_time >= 0 ){
-			
-			time = Math.min( time, seek_max_time );
-		}
-				
 		return( time );
 	}
 

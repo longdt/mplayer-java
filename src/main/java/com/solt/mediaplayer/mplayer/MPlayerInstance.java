@@ -175,7 +175,7 @@ MPlayerInstance
 				cmdList.add("00000040");
 			}
 			
-			Font font = Font.getFont("LiberationSans-Bold.ttf");
+			Font font = Font.getFont("ARIALBD.TTF");
 			if(font != null) {			
 				cmdList.add("-font");
 				cmdList.add(font.getFontPath());
