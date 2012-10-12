@@ -31,11 +31,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import com.solt.mediaplayer.mplayer.fonts.Font;
 import com.solt.mediaplayer.mplayer.util.ShellUtilityFinder;
+import com.solt.mediaplayer.mplayer.util.SimpleTimer;
 import com.solt.mediaplayer.mplayer.util.SystemTime;
 import com.solt.mediaplayer.mplayer.util.Utils;
 
@@ -46,7 +45,6 @@ MPlayerInstance
 			
 	private static File BINARY_PATH;
 
-	private static Timer mpTimer = new Timer("MpTimer", true);
 	public static void
 	initialise(
 		File		binary_path )
@@ -425,7 +423,7 @@ MPlayerInstance
 		
 		final int pause_change_id = ++pause_change_id_next;
 		
-		mpTimer.schedule(new TimerTask() {
+		SimpleTimer.schedule(new Runnable() {
 
 			int	level = 0;
 			
@@ -448,7 +446,7 @@ MPlayerInstance
 						
 						sendCommand( "pause", false );
 						
-						mpTimer.schedule(this, delay + pending_sleeps);
+						SimpleTimer.schedule(this, delay + pending_sleeps);
 					}
 				}
 			}
@@ -685,7 +683,7 @@ MPlayerInstance
 		
 				redrawing = true;
 				
-				mpTimer.schedule(new TimerTask() {
+				SimpleTimer.schedule(new Runnable() {
 					
 					@Override
 					public void run() {
@@ -703,7 +701,7 @@ MPlayerInstance
 								
 							}else{
 								
-								mpTimer.schedule(this, diff);
+								SimpleTimer.schedule(this, diff);
 							}
 						}
 					}
