@@ -31,6 +31,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.solt.mediaplayer.mplayer.fonts.Font;
 import com.solt.mediaplayer.mplayer.util.ShellUtilityFinder;
@@ -44,6 +46,7 @@ MPlayerInstance
 			
 	private static File BINARY_PATH;
 
+	private static Timer mpTimer = new Timer("MpTimer", true);
 	public static void
 	initialise(
 		File		binary_path )
@@ -422,42 +425,34 @@ MPlayerInstance
 		
 		final int pause_change_id = ++pause_change_id_next;
 		
-//		SimpleTimer.addEvent(
-//			"MP:PO",
-//			SystemTime.getOffsetTime( delay + pending_sleeps ),
-//			new TimerEventPerformer()
-//			{
-//				int	level = 0;
-//				
-//				public void 
-//				perform(
-//					TimerEvent event ) 
-//				{
-//					synchronized( MPlayerInstance.this ){
-//						
-//						if ( 	!stopped && 
-//								pause_change_id == pause_change_id_next &&
-//								level < 20){
-//							
-//							level++;
-//							
-//							if ( pause_reported_time >= 0 && pause_reported == paused ){
-//								
-//								return;
-//							}
-//							
-//							//System.out.println("pausedStateChanging() sending pause");						
-//							
-//							sendCommand( "pause", false );
-//							
-//							SimpleTimer.addEvent(
-//									"MP:PO2",
-//									SystemTime.getOffsetTime( delay + pending_sleeps ),
-//									this );
-//						}
-//					}
-//				}
-//			});
+		mpTimer.schedule(new TimerTask() {
+
+			int	level = 0;
+			
+			@Override
+			public void run() {
+				synchronized( MPlayerInstance.this ){
+					
+					if ( 	!stopped && 
+							pause_change_id == pause_change_id_next &&
+							level < 20){
+						
+						level++;
+						
+						if ( pause_reported_time >= 0 && pause_reported == paused ){
+							
+							return;
+						}
+						
+						//System.out.println("pausedStateChanging() sending pause");						
+						
+						sendCommand( "pause", false );
+						
+						mpTimer.schedule(this, delay + pending_sleeps);
+					}
+				}
+			}
+		}, delay + pending_sleeps);
 	}
 	
 	protected boolean 
@@ -690,37 +685,30 @@ MPlayerInstance
 		
 				redrawing = true;
 				
-//				SimpleTimer.addEvent(
-//					"MP:RD",
-//					SystemTime.getOffsetTime( delay ),
-//					new TimerEventPerformer()
-//					{
-//						public void 
-//						perform(
-//							TimerEvent event )
-//						{
-//							synchronized( MPlayerInstance.this ){
-//								
-//								long	now = SystemTime.getMonotonousTime();
-//								
-//								long	diff = redraw_completion - now;
-//								
-//								if ( diff < 0 || Math.abs( diff ) <= 25 ){
-//									
-//									redrawing = false;
-//									
-//									doMute( false );
-//									
-//								}else{
-//									
-//									SimpleTimer.addEvent(
-//										"MP:RD",
-//										SystemTime.getOffsetTime( diff ),
-//										this );
-//								}
-//							}
-//						}
-//					});
+				mpTimer.schedule(new TimerTask() {
+					
+					@Override
+					public void run() {
+						synchronized( MPlayerInstance.this ){
+							
+							long	now = SystemTime.getMonotonousTime();
+							
+							long	diff = redraw_completion - now;
+							
+							if ( diff < 0 || Math.abs( diff ) <= 25 ){
+								
+								redrawing = false;
+								
+								doMute( false );
+								
+							}else{
+								
+								mpTimer.schedule(this, diff);
+							}
+						}
+					}
+				}, delay);
+				
 			}
 		}
 	}
