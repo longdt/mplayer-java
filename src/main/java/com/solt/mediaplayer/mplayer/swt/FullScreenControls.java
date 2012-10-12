@@ -165,11 +165,6 @@ public class FullScreenControls {
 	Rectangle volume0Rectangle;
 	Rectangle volume100Rectangle;
 	
-	//Cached subtitles from OpenSubtitles
-	volatile boolean subtitlesLoading = false;
-	volatile boolean subtitlesLoaded = false;
-	volatile Menu openSubtitlesMenu;
-	
 	public FullScreenControls(MPlayerFrame player,Shell parent) {
 		
 		this.player = player;
@@ -457,15 +452,6 @@ public class FullScreenControls {
 						}
 					}
 				});
-				new MenuItem(subtitlesMenu,SWT.SEPARATOR);
-				final MenuItem loadFromOpenSubtitles = new MenuItem(subtitlesMenu,SWT.CASCADE);
-				loadFromOpenSubtitles.setText("Open from OpenSubtitles.org");
-				loadFromOpenSubtitles.setImage(openSubtitlesImage);
-				openSubtitlesMenu = new Menu(subtitlesMenu);
-				loadFromOpenSubtitles.setMenu(openSubtitlesMenu);
-				if(subtitlesLoaded) {
-					populateSubtitles();
-				} else {}
 				
 				new MenuItem(languagesMenu,SWT.SEPARATOR);
 				MenuItem infoItem = new MenuItem(languagesMenu,SWT.PUSH);
@@ -482,14 +468,6 @@ public class FullScreenControls {
 			
 		});
 		
-	}
-	
-	private void populateSubtitles() {
-		if(openSubtitlesMenu == null || openSubtitlesMenu.isDisposed()) return;
-		MenuItem[] menuItems = openSubtitlesMenu.getItems();
-		for (int i=0; i<menuItems.length; i++) {
-			menuItems [i].dispose ();
-		}
 	}
 
 
@@ -581,14 +559,10 @@ public class FullScreenControls {
 	private void addPlayPauseListeners() {
 		player.addStateListener(new StateListener() {
 			public void stateChanged(MediaPlaybackState newState) {
-				if(newState == MediaPlaybackState.Opening) {
-					reinitializePlayer();
-				} else
-				if(!isTimeSliding) {
-					if(newState == MediaPlaybackState.Paused) {
+				if (!isTimeSliding) {
+					if (newState == MediaPlaybackState.Paused) {
 						updatePlayPauseImage(playImage);
-					} else
-					if(newState == MediaPlaybackState.Playing) {
+					} else if (newState == MediaPlaybackState.Playing) {
 						updatePlayPauseImage(pauseImage);
 					}
 				}
@@ -624,11 +598,6 @@ public class FullScreenControls {
 			}
 		});
 		
-	}
-	
-	private void reinitializePlayer() {
-		subtitlesLoaded = false;
-		subtitlesLoading = false;
 	}
 	
 	private void addLanguagesListeners() {
