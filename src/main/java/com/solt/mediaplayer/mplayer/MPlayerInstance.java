@@ -181,7 +181,7 @@ MPlayerInstance
 				cmdList.add("-font");
 				cmdList.add(font.getFontPath());
 				cmdList.add("-subfont-text-scale");
-				cmdList.add(Utils.isWindows() ? "4" : "2.5");
+				cmdList.add(Utils.isWindows() ? "6.5" : "4.5");
 				cmdList.add("-subfont-blur");
 				cmdList.add("4");
 				cmdList.add("-subfont-outline");
