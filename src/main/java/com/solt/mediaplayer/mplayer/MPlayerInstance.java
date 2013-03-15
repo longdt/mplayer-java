@@ -54,11 +54,6 @@ MPlayerInstance
 		killProcesses( false );
 	}
 	
-	private PlayerPreferences preferences;
-	
-	public MPlayerInstance(PlayerPreferences preferences) {
-		this.preferences = preferences;
-	}
 	
 	public static void setBinaryPath(String path) {
 		

@@ -14,7 +14,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.solt.mediaplayer.mplayer.MPlayer;
 import com.solt.mediaplayer.mplayer.MediaPlaybackState;
-import com.solt.mediaplayer.mplayer.PlayerPreferences;
 import com.solt.mediaplayer.mplayer.util.Utils;
 
 
@@ -31,15 +30,8 @@ public class MPlayerFrame extends MPlayer {
 	int displayWidth = 0;
 	int displayHeight = 0;
 	
-	//Shell fullscreenShell;
-	
+		
 	public MPlayerFrame(Composite parent) {
-		
-		this(parent,null);
-	}
-		
-	public MPlayerFrame(Composite parent,PlayerPreferences preferences) {
-		super(preferences);
 		display = Display.getCurrent();
 		
 		this.parent = parent;

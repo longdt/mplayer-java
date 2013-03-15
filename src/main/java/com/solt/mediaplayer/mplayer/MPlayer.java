@@ -20,20 +20,12 @@ public abstract class MPlayer extends BaseMediaPlayer {
 	
 	private Thread outputParser;
 		
-	public MPlayer() {
-		this(null);
-	}
 	
 	private boolean firstLengthReceived = false;
 	private boolean firstVolumeReceived = false;
 	
-	public MPlayer(PlayerPreferences preferences) {
-	
-		super(preferences);
-		
-		
+	public MPlayer() {
 		output = new LinkedList<String>();
-		
 		outputParser = new Thread("MPlayer output parser") {
 			public void run() {
 				try {
@@ -177,12 +169,6 @@ public abstract class MPlayer extends BaseMediaPlayer {
 				float duration = Float.parseFloat(line.substring(ANS_LENGTH.length()));
 				if(!firstLengthReceived) {
 					firstLengthReceived = true;
-					if(preferences != null) {
-						float seekTo = preferences.getPositionForFile(getOpenedFile()) - 2f;
-						if(seekTo > 0 && seekTo < 0.99 * duration && seekTo < duration - 20f) {
-							doSeek(seekTo);
-						}
-					}
 				}
 				reportDuration(duration);
 			} catch (Exception e) {
@@ -195,9 +181,6 @@ public abstract class MPlayer extends BaseMediaPlayer {
 				reportVolume(volume);
 				if(!firstVolumeReceived) {
 					firstVolumeReceived = true;
-					if(preferences != null && preferences.getVolume() != volume) {
-						setVolume(preferences.getVolume());
-					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -432,7 +415,7 @@ public abstract class MPlayer extends BaseMediaPlayer {
 			
 			doStop( false );
 			
-			instance = current_instance = new MPlayerInstance(preferences);
+			instance = current_instance = new MPlayerInstance();
 		}
 		
 		reportNewState(MediaPlaybackState.Opening);
@@ -579,18 +562,10 @@ public abstract class MPlayer extends BaseMediaPlayer {
 		boolean	report_state ) 
 	{		
 		synchronized( this ){
-
 			if ( current_instance != null ){
-				
-				if(preferences != null) {
-					preferences.setPositionForFile(getOpenedFile(), getPositionInSecs());
-				}
-				
 				current_instance.doStop();
-
 				current_instance = null;
 			}
-			
 			synchronized (output) {
 				output.clear();
 				output.notifyAll();
@@ -598,7 +573,6 @@ public abstract class MPlayer extends BaseMediaPlayer {
 		}
 		
 		if ( report_state ){
-		
 			reportNewState(MediaPlaybackState.Stopped);
 		}
 	}
@@ -622,7 +596,6 @@ public abstract class MPlayer extends BaseMediaPlayer {
 	
 	public void setVolumeListener(VolumeListener listener) {
 		this.volumeListener = listener;
-		
 	}
 	
 	

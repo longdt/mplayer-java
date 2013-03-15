@@ -29,7 +29,6 @@ import com.solt.mediaplayer.mplayer.LanguageSource;
 import com.solt.mediaplayer.mplayer.MPlayer;
 import com.solt.mediaplayer.mplayer.MediaPlaybackState;
 import com.solt.mediaplayer.mplayer.MetaDataListener;
-import com.solt.mediaplayer.mplayer.PlayerPreferences;
 import com.solt.mediaplayer.mplayer.StateListener;
 import com.solt.mediaplayer.mplayer.util.Utils;
 import com.sun.org.apache.bcel.internal.Constants;
@@ -58,16 +57,12 @@ Player
 	private Listener keyListener;
 	private boolean autoResize;
 	
-	public Player(final Composite parent) {
-		this(parent,null);
-	}
 	
-	
-	public Player(final Composite _parent,final PlayerPreferences preferences) {
+	public Player(final Composite _parent) {
 
 		parent	= _parent;
 		display = parent.getDisplay();
-		playerFrame = new MPlayerFrame(parent,preferences);
+		playerFrame = new MPlayerFrame(parent);
 		controls = new FullScreenControls(playerFrame, parent.getShell());
 		//playerFrame.setControls(controls.getRealShell());
 		controlsSize = controls.getShell().getBounds();
@@ -331,18 +326,6 @@ Player
 		};
 		parent.addListener(SWT.KeyDown,keyListener);
 		controls.getShell().addListener(SWT.KeyDown, keyListener);
-		
-		parent.getShell().addListener(SWT.Close, new Listener() {
-			
-			public void handleEvent(Event evt) {
-				//Handle preferences
-				if(preferences != null) {
-					Point p = parent.getShell().getLocation();
-					preferences.setWindowPosition(p);
-					preferences.setVolume(playerFrame.getVolume());
-				}
-			}
-		});
 		
 		parent.getShell().addListener(SWT.Dispose, new Listener() {
 			public void handleEvent(Event arg0) {

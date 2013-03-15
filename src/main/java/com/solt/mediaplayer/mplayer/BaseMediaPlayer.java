@@ -31,15 +31,8 @@ public abstract class BaseMediaPlayer implements MediaPlayer,MetaDataListener,St
 	private String 				openedFile;
 	
 	
-	protected PlayerPreferences preferences;
 	
 	public BaseMediaPlayer() {
-		this(null);
-	}
-	
-	public BaseMediaPlayer(PlayerPreferences preferences) {
-		this.preferences = preferences;
-		
 		metaDataListeners = new ArrayList<MetaDataListener>(1);
 		stateListeners = new ArrayList<StateListener>(1);
 		volumeListeners = new ArrayList<VolumeListener>(1);
