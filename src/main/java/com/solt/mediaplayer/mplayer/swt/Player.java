@@ -1,9 +1,7 @@
 package com.solt.mediaplayer.mplayer.swt;
 
 import java.io.File;
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -24,14 +22,15 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
+import com.solt.mediaplayer.mplayer.AESemaphore;
 import com.solt.mediaplayer.mplayer.Language;
 import com.solt.mediaplayer.mplayer.LanguageSource;
 import com.solt.mediaplayer.mplayer.MPlayer;
 import com.solt.mediaplayer.mplayer.MediaPlaybackState;
 import com.solt.mediaplayer.mplayer.MetaDataListener;
+import com.solt.mediaplayer.mplayer.PlayerPreferences;
 import com.solt.mediaplayer.mplayer.StateListener;
 import com.solt.mediaplayer.mplayer.util.Utils;
-import com.sun.org.apache.bcel.internal.Constants;
 
 public class 
 Player 
@@ -57,12 +56,16 @@ Player
 	private Listener keyListener;
 	private boolean autoResize;
 	
+	public Player(final Composite parent) {
+		this(parent,null);
+	}
 	
-	public Player(final Composite _parent) {
+
+	public Player(final Composite _parent,final PlayerPreferences preferences) {
 
 		parent	= _parent;
 		display = parent.getDisplay();
-		playerFrame = new MPlayerFrame(parent);
+		playerFrame = new MPlayerFrame(parent,preferences);
 		controls = new FullScreenControls(playerFrame, parent.getShell());
 		//playerFrame.setControls(controls.getRealShell());
 		controlsSize = controls.getShell().getBounds();
@@ -326,6 +329,18 @@ Player
 		};
 		parent.addListener(SWT.KeyDown,keyListener);
 		controls.getShell().addListener(SWT.KeyDown, keyListener);
+		
+		parent.getShell().addListener(SWT.Close, new Listener() {
+			
+			public void handleEvent(Event evt) {
+				//Handle preferences
+				if(preferences != null) {
+					 Point p = parent.getShell().getLocation();
+					preferences.setWindowPosition(p);
+					preferences.setVolume(playerFrame.getVolume());
+				}
+			}
+		});
 		
 		parent.getShell().addListener(SWT.Dispose, new Listener() {
 			public void handleEvent(Event arg0) {
@@ -648,7 +663,81 @@ Player
 	private void resizeParentShell(final Shell s,final Rectangle currentBounds,
 			final Rectangle targetBounds) {
 		
-		if(Utils.isMacOSX()) {} else {
+		if(Utils.isMacOSX()) {
+			playerFrame.pause();
+			//Animate on OSX ...
+			Thread t = new Thread("Player Resizer") {
+				public void run() {
+					if(!display.isDisposed()) {
+						display.asyncExec(new Runnable() {
+							
+							public void run() {
+								playerFrame.setVisible(false);
+							}
+						});
+					}
+					
+					//We'll resize within 1s
+					try {
+						final AESemaphore sem = new AESemaphore("resize wait");
+						//final long startTime = System.currentTimeMillis();
+						//final float runTime = 3000;
+						float time = 0;
+						do {
+							long currentTime = System.currentTimeMillis();
+							//t = (float)currentTime / runTime;
+							time += 0.06;
+							float t = (float) Math.pow(time,0.30);
+							if(t > 1f) {
+								t = 1f;
+							}
+							float one_minus_t = 1 - t;
+							final int x = (int) (targetBounds.x * t + one_minus_t * currentBounds.x);
+							final int y = (int) (targetBounds.y * t + one_minus_t * currentBounds.y);
+							final int width = (int) (targetBounds.width * t + one_minus_t * currentBounds.width);
+							final int height = (int) (targetBounds.height * t + one_minus_t * currentBounds.height);
+							//System.out.println(x+","+y+","+width+","+height);
+							if(!display.isDisposed()) {
+								display.asyncExec(new Runnable() {
+									
+									public void run() {
+										//System.out.println(">" + x+","+y+","+width+","+height);
+										if(!s.isDisposed()) {
+											s.setBounds(x,y,width,height);
+										}
+										sem.release();
+									}
+								});
+								
+							}
+							sem.reserve();
+							long timeTaken = System.currentTimeMillis() - currentTime;
+							long sleepTime = 25 - timeTaken;
+							if(sleepTime > 25) sleepTime = 25;
+							if(sleepTime > 0 ) {
+								Thread.sleep(sleepTime);
+							}
+						} while( time < 1f);
+					} catch(Exception e) {
+					}
+					if(!display.isDisposed()) {
+						display.asyncExec(new Runnable() {
+							
+							public void run() {
+								if(!playerFrame.isDisposed()) {
+									playerFrame.setVisible(true);
+									playerFrame.play();
+								}
+							}
+						});
+					}
+					
+				}
+			};
+			t.setDaemon(true);
+			t.start();
+			
+		} else {
 			s.setBounds(targetBounds.x,targetBounds.y,targetBounds.width,targetBounds.height);
 		}
 	}

@@ -20,11 +20,18 @@ public abstract class MPlayer extends BaseMediaPlayer {
 	
 	private Thread outputParser;
 		
+	public MPlayer() {
+		this(null);
+	}
 	
 	private boolean firstLengthReceived = false;
 	private boolean firstVolumeReceived = false;
 	
-	public MPlayer() {
+	public MPlayer(PlayerPreferences preferences) {
+	
+		super(preferences);
+		
+		
 		output = new LinkedList<String>();
 		outputParser = new Thread("MPlayer output parser") {
 			public void run() {
@@ -169,6 +176,12 @@ public abstract class MPlayer extends BaseMediaPlayer {
 				float duration = Float.parseFloat(line.substring(ANS_LENGTH.length()));
 				if(!firstLengthReceived) {
 					firstLengthReceived = true;
+					if(preferences != null) {
+						float seekTo = preferences.getPositionForFile(getOpenedFile()) - 2f;
+						if(seekTo > 0 && seekTo < 0.99 * duration && seekTo < duration - 20f) {
+							doSeek(seekTo);
+						}
+					}
 				}
 				reportDuration(duration);
 			} catch (Exception e) {
@@ -181,6 +194,9 @@ public abstract class MPlayer extends BaseMediaPlayer {
 				reportVolume(volume);
 				if(!firstVolumeReceived) {
 					firstVolumeReceived = true;
+					if(preferences != null && preferences.getVolume() != volume) {
+						setVolume(preferences.getVolume());
+					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -563,6 +579,11 @@ public abstract class MPlayer extends BaseMediaPlayer {
 	{		
 		synchronized( this ){
 			if ( current_instance != null ){
+				
+				if(preferences != null) {
+					preferences.setPositionForFile(getOpenedFile(), getPositionInSecs());
+				}
+				
 				current_instance.doStop();
 				current_instance = null;
 			}

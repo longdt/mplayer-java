@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.solt.mediaplayer.mplayer.MPlayer;
 import com.solt.mediaplayer.mplayer.MediaPlaybackState;
+import com.solt.mediaplayer.mplayer.PlayerPreferences;
 import com.solt.mediaplayer.mplayer.util.Utils;
 import com.vuze.swt.MPlayerRendererCanvas;
 
@@ -33,6 +34,12 @@ public class MPlayerFrame extends MPlayer {
 	
 		
 	public MPlayerFrame(Composite parent) {
+		
+		this(parent,null);
+	}
+		
+	public MPlayerFrame(Composite parent,PlayerPreferences preferences) {
+		super(preferences);
 		display = Display.getCurrent();
 		
 		this.parent = parent;
