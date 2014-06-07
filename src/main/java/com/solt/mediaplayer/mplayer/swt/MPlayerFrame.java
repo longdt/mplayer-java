@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.solt.mediaplayer.mplayer.MPlayer;
 import com.solt.mediaplayer.mplayer.MediaPlaybackState;
 import com.solt.mediaplayer.mplayer.util.Utils;
+import com.vuze.swt.MPlayerRendererCanvas;
 
 
 

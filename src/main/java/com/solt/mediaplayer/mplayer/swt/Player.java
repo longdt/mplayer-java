@@ -676,7 +676,7 @@ Player
 	}
 	
 	public static void play(final Shell shell, String fileOrUrl) throws Exception {
-		File player_binary = new File("bin\\mplayer.exe");
+		File player_binary = Utils.isWindows() ? new File("bin\\mplayer.exe") : new File("/usr/bin/mplayer");
 		
 		MPlayer.initialise( player_binary );
 		
@@ -728,6 +728,13 @@ Player
 				display.sleep();
 			}
 		}
+	}
+	
+	public static void main(String[] args) throws Exception {
+		Shell shell = new Shell();
+		shell.setSize(880, 480);
+		shell.setText("SWT Application");
+		play(shell, "/media/thienlong/data/Music/Dead Fantasy 5.mp4");
 	}
 
 }
